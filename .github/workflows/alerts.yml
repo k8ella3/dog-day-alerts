@@ -1,8 +1,13 @@
 name: Dog Day Out alerts
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "2-59/5 * * * *"
   workflow_dispatch:
+    inputs:
+      test:
+        description: "Send a test alert to my phone"
+        type: boolean
+        default: false
 permissions:
   contents: write
 jobs:
@@ -10,6 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Send test alert
+        if: ${{ inputs.test }}
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          curl -fsS -H "Title: Test from GitHub" -d "Test worked, GitHub can reach your phone." "https://ntfy.sh/$NTFY_TOPIC"
       - name: Check for open slots
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
